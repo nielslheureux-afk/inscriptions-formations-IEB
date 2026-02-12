@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Inscriptions Formations - Secteur</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <style>
+        .card-cliquable {
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 15px;
+            border: 2px solid transparent;
+        }
+
+        .card-cliquable:hover {
+            border-color: #0d6efd;
+            transform: translateY(-5px);
+        }
+
+        .admin-zone {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #ddd;
+        }
+
+        .label-admin {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #666;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+    <div class="container py-5">
+        <div id="app">
+            <div class="text-center">
+                <div class="spinner-border"></div>
+            </div>
+        </div>
+        <div class="text-center mt-5">
+            <button class="btn btn-sm btn-light text-muted" onclick="verifierAccesAdmin()">⚙️ Admin</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. CONFIGURATION FIREBASE (À remplir)
+        const firebaseConfig = {
+            apiKey: "AIzaSyADcar-De5Cb7rLlWupnKBpalRbKDH1rsQ",
+            databaseURL: "https://inscriptions-ieb-circo-prades-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "inscriptions-ieb-circo-prades"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const CODE_ACCES = "IEB2026";
+        let catalog = { baseUrlFrama: "", disciplines: [] };
+
+        // 2. LOGIQUE DE CHARGEMENT & VALIDATION RETOUR
+        // 2. LOGIQUE DE CHARGEMENT & VALIDATION RETOUR
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            const sessionId = urlParams.get('id');
+
+            // On récupère les données UNE FOIS pour vérifier la validation
+            db.ref('catalog').once('value').then((snapshot) => {
+                catalog = snapshot.val() || { baseUrlFrama: "", disciplines: [] };
+
+                if (action === 'valider' && sessionId) {
+                    validerInscription(sessionId);
+                } else {
+                    // Sinon, on active l'écouteur habituel pour l'affichage
+                    db.ref('catalog').on('value', (snap) => {
+                        catalog = snap.val() || { baseUrlFrama: "", disciplines: [] };
+                        afficherMenu();
+                    });
+                }
+            });
+        };
+
+        async function validerInscription(sessionId) {
+            let sessionTrouvee = false;
+
+            catalog.disciplines.forEach((disc, dIdx) => {
+                if (!disc.sessions) return;
+                disc.sessions.forEach((sess, sIdx) => {
+                    if (sess.id === sessionId) {
+                        sessionTrouvee = true;
+                        const quotaActuel = parseInt(sess.quota);
+
+                        if (quotaActuel > 0) {
+                            const nouveauQuota = quotaActuel - 1;
+                            // Mise à jour précise dans Firebase
+                            db.ref(`catalog/disciplines/${dIdx}/sessions/${sIdx}/quota`)
+                                .set(nouveauQuota)
+                                .then(() => {
+                                    alert("Inscription enregistrée ! Place décomptée.");
+                                    window.location.href = window.location.pathname; // Nettoyage URL
+                                });
+                        } else {
+                            alert("Désolé, cette session est déjà complète.");
+                            window.location.href = window.location.pathname;
+                        }
+                    }
+                });
+            });
+
+            if (!sessionTrouvee) {
+                console.error("Session non trouvée pour l'ID:", sessionId);
+                afficherMenu();
+            }
+        }
+
+        // --- VUES UTILISATEUR ---
+
+
+        function afficherMenu() {
+            let html = `<h1 class="text-center mb-5">Catalogue de Formation</h1><div class="row g-4">`;
+            catalog.disciplines.forEach((disc, i) => {
+                html += `
+            <div class="col-md-4" onclick="afficherSessions(${i})">
+                <div class="card h-100 card-cliquable shadow-sm text-center p-3">
+                    <h3 class="h4">${disc.nom}</h3>
+                    <p class="small text-muted flex-grow-1">${disc.description || ""}</p>
+                    <span class="badge bg-primary w-50 mx-auto">${disc.sessions ? disc.sessions.length : 0} dates</span>
+                </div>
+            </div>`;
+            });
+            document.getElementById('app').innerHTML = html + `</div>`;
+        }
+        // --- AFFICHAGE DES SESSIONS POUR UNE DISCIPLINE ---
+        function afficherSessions(idx) {
+            const disc = catalog.disciplines[idx];
+            let html = `
+                <button class="btn btn-link mb-3 p-0" onclick="afficherMenu()">← Retour au catalogue</button>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>${disc.nom}</h2>
+                    ${disc.doc_url ? `<a href="${disc.doc_url}" target="_blank" class="btn btn-outline-secondary btn-sm">📄 Fiche technique</a>` : ''}
+                </div>
+                <div class="row g-3">`;
+
+            if (!disc.sessions || disc.sessions.length === 0) {
+                html += `<div class="col-12 text-muted">Aucune session prévue pour le moment.</div>`;
+            } else {
+                disc.sessions.forEach(s => {
+                    const complet = s.quota <= 0;
+                    html += `
+                        <div class="col-md-6">
+                            <div class="card shadow-sm border-0 p-3">
+                                <div class="d-flex justify-content-between">
+                                    <h5>📅 ${s.date}</h5>
+                                    <span class="badge ${complet ? 'bg-danger' : 'bg-success'}">
+                                        ${complet ? 'Complet' : s.quota + ' places restantes'}
+                                    </span>
+                                </div>
+                                <p class="small text-muted mb-3">📍 ${s.lieu || 'Lieu à préciser'}</p>
+                                <button onclick="ouvrirFrama('${disc.nom.replace(/'/g, "\\'")}', '${s.date}', '${s.id}', '${(s.lieu || "").replace(/'/g, "\\'")}')" 
+                                        class="btn btn-primary w-100" ${complet ? 'disabled' : ''}>
+                                    ${complet ? 'Session complète' : "S'inscrire"}
+                                </button>
+                            </div>
+                        </div>`;
+                });
+            }
+            document.getElementById('app').innerHTML = html + `</div>`;
+        }
+
+        // --- ENVOI VERS FRAMAFORMS AVEC LE LIEU ---
+        function ouvrirFrama(disc, date, id, lieu) {
+            const urlFrama = `${catalog.baseUrlFrama}?discipline_choisie=${encodeURIComponent(disc)}&date_session=${encodeURIComponent(date)}&id_interne=${encodeURIComponent(id)}&lieu_session=${encodeURIComponent(lieu)}`;
+            window.location.href = urlFrama;
+        }
+
+        // --- VUE ADMIN ---
+        function verifierAccesAdmin() {
+            if (prompt("Code d'accès :") === CODE_ACCES) {
+                let html = `<div class="admin-zone shadow-lg">
+                <div class="d-flex justify-content-between mb-4"><h2>Paramétrage</h2><button class="btn btn-dark btn-sm" onclick="location.reload()">Quitter</button></div>
+                <div class="mb-3"><label class="label-admin">Lien Framaforms unique :</label><input type="text" id="url-frama" class="form-control" value="${catalog.baseUrlFrama}"></div>
+                <div id="editor"></div>
+                <button class="btn btn-primary w-100 mt-3" onclick="ajouterDisc()">+ Ajouter une Discipline</button>
+                <button class="btn btn-success w-100 mt-4 py-3 fw-bold" onclick="sauverFirebase()">💾 ENREGISTRER TOUT LE CATALOGUE</button>
+            </div>`;
+                document.getElementById('app').innerHTML = html;
+                renderEditor();
+            }
+        }
+
+        function ajouterDisc() {
+            catalog.disciplines.push({ nom: "Nouvelle Activité", description: "", doc_url: "", sessions: [] });
+            renderEditor();
+        }
+
+        function renderEditor() {
+            const container = document.getElementById('editor');
+            container.innerHTML = "";
+            catalog.disciplines.forEach((disc, i) => {
+                container.innerHTML += `
+            <div class="card mb-4 border-primary p-3">
+                <div class="label-admin">Nom de l'activité</div>
+                <input type="text" class="form-control fw-bold mb-2" value="${disc.nom}" oninput="catalog.disciplines[${i}].nom=this.value">
+                <div class="label-admin">Description courte</div>
+                <textarea class="form-control mb-2" oninput="catalog.disciplines[${i}].description=this.value">${disc.description || ""}</textarea>
+                <div class="label-admin">Lien document (PDF)</div>
+                <input type="text" class="form-control mb-3" placeholder="https://..." value="${disc.doc_url || ''}" oninput="catalog.disciplines[${i}].doc_url=this.value">
+                <div id="sess-${i}"></div>
+                <button class="btn btn-sm btn-outline-primary" onclick="ajouterSess(${i})">+ Ajouter une date</button>
+                <button class="btn btn-sm btn-link text-danger mt-2" onclick="if(confirm('Supprimer ?')){catalog.disciplines.splice(${i},1); renderEditor()}">Supprimer l'activité</button>
+            </div>`;
+
+                const sessCont = document.getElementById(`sess-${i}`);
+                if (disc.sessions) {
+                    disc.sessions.forEach((s, si) => {
+                        sessCont.innerHTML += `
+                    <div class="session-edit-card border-start border-3 border-info ps-3 mb-3 bg-light p-2 rounded">
+                        <div class="row g-2">
+                            <div class="col-5">
+                                <div class="label-admin">Date</div>
+                                <input type="text" class="form-control form-control-sm" value="${s.date}" oninput="catalog.disciplines[${i}].sessions[${si}].date=this.value">
+                            </div>
+                            <div class="col-4">
+                                <div class="label-admin">Lieu</div>
+                                <input type="text" class="form-control form-control-sm" value="${s.lieu || ''}" oninput="catalog.disciplines[${i}].sessions[${si}].lieu=this.value">
+                            </div>
+                            <div class="col-2">
+                                <div class="label-admin">Quota</div>
+                                <input type="number" class="form-control form-control-sm" value="${s.quota}" oninput="catalog.disciplines[${i}].sessions[${si}].quota=this.value">
+                            </div>
+                            <div class="col-1 text-end pt-3">
+                                <button class="btn btn-sm btn-link text-danger" onclick="catalog.disciplines[${i}].sessions.splice(${si},1); renderEditor()">✖</button>
+                            </div>
+                        </div>
+                    </div>`;
+                    });
+                }
+            });
+        }
+
+        function ajouterSess(i) {
+            if (!catalog.disciplines[i].sessions) catalog.disciplines[i].sessions = [];
+            catalog.disciplines[i].sessions.push({
+                id: "S-" + Date.now(),
+                date: "Date à définir",
+                lieu: "Lieu à définir", // Initialisation du lieu
+                quota: 10
+            });
+            renderEditor();
+        }
+
+        function sauverFirebase() {
+            catalog.baseUrlFrama = document.getElementById('url-frama').value;
+            db.ref('catalog').set(catalog)
+                .then(() => alert("Catalogue mis à jour sur Firebase !"))
+                .catch(e => alert("Erreur : " + e.message));
+        }
+    </script>
+</body>
+
+</html>
