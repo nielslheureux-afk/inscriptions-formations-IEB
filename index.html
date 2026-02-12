@@ -136,15 +136,16 @@
             document.getElementById('app').innerHTML = html + `</div>`;
         }
         // --- AFFICHAGE DES SESSIONS POUR UNE DISCIPLINE ---
+        // --- AFFICHAGE DES SESSIONS POUR UNE DISCIPLINE ---
         function afficherSessions(idx) {
             const disc = catalog.disciplines[idx];
             let html = `
-                <button class="btn btn-link mb-3 p-0" onclick="afficherMenu()">← Retour au catalogue</button>
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2>${disc.nom}</h2>
-                    ${disc.doc_url ? `<a href="${disc.doc_url}" target="_blank" class="btn btn-outline-secondary btn-sm">📄 Fiche technique</a>` : ''}
-                </div>
-                <div class="row g-3">`;
+        <button class="btn btn-link mb-3 p-0" onclick="afficherMenu()">← Retour au catalogue</button>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>${disc.nom}</h2>
+            ${disc.doc_url ? `<a href="${disc.doc_url}" target="_blank" class="btn btn-outline-secondary btn-sm">📄 Fiche technique</a>` : ''}
+        </div>
+        <div class="row g-3">`;
 
             if (!disc.sessions || disc.sessions.length === 0) {
                 html += `<div class="col-12 text-muted">Aucune session prévue pour le moment.</div>`;
@@ -152,29 +153,34 @@
                 disc.sessions.forEach(s => {
                     const complet = s.quota <= 0;
                     html += `
-                        <div class="col-md-6">
-                            <div class="card shadow-sm border-0 p-3">
-                                <div class="d-flex justify-content-between">
-                                    <h5>📅 ${s.date}</h5>
-                                    <span class="badge ${complet ? 'bg-danger' : 'bg-success'}">
-                                        ${complet ? 'Complet' : s.quota + ' places restantes'}
-                                    </span>
-                                </div>
-                                <p class="small text-muted mb-3">📍 ${s.lieu || 'Lieu à préciser'}</p>
-                                <button onclick="ouvrirFrama('${disc.nom.replace(/'/g, "\\'")}', '${s.date}', '${s.id}', '${(s.lieu || "").replace(/'/g, "\\'")}')" 
-                                        class="btn btn-primary w-100" ${complet ? 'disabled' : ''}>
-                                    ${complet ? 'Session complète' : "S'inscrire"}
-                                </button>
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 p-3">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5>📅 ${s.date}</h5>
+                                ${s.horaire ? `<div class="text-primary fw-bold mb-2">🕒 ${s.horaire}</div>` : ''}
                             </div>
-                        </div>`;
+                            <span class="badge ${complet ? 'bg-danger' : 'bg-success'}">
+                                ${complet ? 'Complet' : s.quota + ' places restantes'}
+                            </span>
+                        </div>
+                        <p class="small text-muted mb-3">📍 ${s.lieu || 'Lieu à préciser'}</p>
+                        <button onclick="ouvrirFrama('${disc.nom.replace(/'/g, "\\'")}', '${s.date}', '${s.id}', '${(s.lieu || "").replace(/'/g, "\\'")}', '${(s.horaire || "").replace(/'/g, "\\'")}')" 
+                                class="btn btn-primary w-100" ${complet ? 'disabled' : ''}>
+                            ${complet ? 'Session complète' : "S'inscrire"}
+                        </button>
+                    </div>
+                </div>`;
                 });
             }
             document.getElementById('app').innerHTML = html + `</div>`;
         }
 
         // --- ENVOI VERS FRAMAFORMS AVEC LE LIEU ---
-        function ouvrirFrama(disc, date, id, lieu) {
-            const urlFrama = `${catalog.baseUrlFrama}?discipline_choisie=${encodeURIComponent(disc)}&date_session=${encodeURIComponent(date)}&id_interne=${encodeURIComponent(id)}&lieu_session=${encodeURIComponent(lieu)}`;
+        // --- ENVOI VERS FRAMAFORMS ---
+        function ouvrirFrama(disc, date, id, lieu, horaire) {
+            // On ajoute l'horaire dans l'URL pour que Framaforms puisse aussi le récupérer si besoin
+            const urlFrama = `${catalog.baseUrlFrama}?discipline_choisie=${encodeURIComponent(disc)}&date_session=${encodeURIComponent(date)}&id_interne=${encodeURIComponent(id)}&lieu_session=${encodeURIComponent(lieu)}&horaire_session=${encodeURIComponent(horaire || "")}`;
             window.location.href = urlFrama;
         }
 
@@ -221,11 +227,15 @@
                         sessCont.innerHTML += `
                     <div class="session-edit-card border-start border-3 border-info ps-3 mb-3 bg-light p-2 rounded">
                         <div class="row g-2">
-                            <div class="col-5">
+                            <div class="col-3">
                                 <div class="label-admin">Date</div>
                                 <input type="text" class="form-control form-control-sm" value="${s.date}" oninput="catalog.disciplines[${i}].sessions[${si}].date=this.value">
                             </div>
-                            <div class="col-4">
+                            <div class="col-3">
+                                <div class="label-admin">Horaire</div>
+                                <input type="text" class="form-control form-control-sm" placeholder="ex: 9h-12h" value="${s.horaire || ''}" oninput="catalog.disciplines[${i}].sessions[${si}].horaire=this.value">
+                            </div>
+                            <div class="col-3">
                                 <div class="label-admin">Lieu</div>
                                 <input type="text" class="form-control form-control-sm" value="${s.lieu || ''}" oninput="catalog.disciplines[${i}].sessions[${si}].lieu=this.value">
                             </div>
