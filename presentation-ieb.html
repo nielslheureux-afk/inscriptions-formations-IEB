@@ -1,1 +1,320 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dossier de Présentation : Système de Gestion IEB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ieb: {
+                            dark: '#0F4C81',
+                            primary: '#2196F3',
+                            light: '#E3F2FD',
+                            accent: '#FF9800',
+                            success: '#4CAF50',
+                            danger: '#F44336'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        .card-step {
+            @apply bg-white p-6 rounded-xl shadow-md border-l-4 transition-all hover:shadow-lg;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+
+    <!-- HERO SECTION -->
+    <header class="bg-gradient-to-r from-ieb-dark to-ieb-primary text-white py-16 px-4 shadow-2xl">
+        <div class="max-w-6xl mx-auto text-center">
+            <div class="inline-block bg-ieb-accent text-white text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-widest">Version Institutionnelle 2026</div>
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-6">Système de Gestion des Formations</h1>
+            <p class="text-xl md:text-2xl font-light opacity-90 max-w-3xl mx-auto">
+                Une solution intégrée pour la planification logistique, l'automatisation des inscriptions et la sécurisation totale des données bénévoles.
+            </p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-12 space-y-20">
+
+        <!-- SECTION 1: SYNTHÈSE DES OUTILS -->
+        <section>
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-ieb-dark">Deux Outils, Un Seul Écosystème</h2>
+                <p class="text-gray-500">Une synergie entre interface publique et gestion administrative locale.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="card-step border-ieb-primary">
+                    <div class="text-3xl mb-4">🌐</div>
+                    <h3 class="text-xl font-bold mb-2">1. Interface Inscriptions (Cloud)</h3>
+                    <p class="text-sm text-gray-600">Catalogue dynamique permettant aux intervenants de consulter les places et de s'inscrire via Framaforms.</p>
+                </div>
+                <div class="card-step border-ieb-accent">
+                    <div class="text-3xl mb-4">💻</div>
+                    <h3 class="text-xl font-bold mb-2">2. Espace Élaboration (Local)</h3>
+                    <p class="text-sm text-gray-600 mb-4">Traitement des données nominatives, gestion des listes d'émargement et édition des documents Word.</p>
+                    <div class="bg-orange-50 p-3 rounded text-xs text-ieb-accent font-bold">
+                        ⚠️ Sécurité : Données nominatives traitées localement uniquement.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: LE CŒUR TECHNIQUE (REDIRECTION) -->
+        <section class="bg-white rounded-3xl shadow-xl p-8 md:p-12 border border-slate-200">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-ieb-dark mb-6">L'Intelligence de l'Automatisation</h2>
+                    <p class="text-gray-600 mb-6">
+                        Le système communique avec Framaforms grâce à une redirection intelligente. C'est elle qui permet de décompter les places en temps réel sans aucune intervention humaine.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-ieb-light rounded-lg border-l-4 border-ieb-primary">
+                            <span class="block text-xs font-bold text-ieb-primary uppercase mb-1">Processus Automatisé</span>
+                            <p class="text-sm text-ieb-dark">Validation Framaforms ➜ Mise à jour instantanée du quota ➜ Retour au catalogue.</p>
+                        </div>
+                        <p class="text-sm italic text-gray-500">
+                            "Dès qu'un bénévole valide son formulaire, le système enregistre immédiatement sa place dans la base de données."
+                        </p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="radarPerformance"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: FONCTIONNALITÉS ADMIN -->
+        <section class="space-y-8">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-ieb-dark">Pilotage Formateur & Admin</h2>
+                <p class="text-gray-500">Un contrôle total sur l'ingénierie et la logistique.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h4 class="font-bold text-ieb-primary mb-3 text-center">🏗️ Ingénierie</h4>
+                    <ul class="text-sm space-y-2 text-gray-600">
+                        <li>• Élaboration du calendrier annuel</li>
+                        <li>• Création des disciplines</li>
+                        <li>• Définition des descriptifs</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h4 class="font-bold text-ieb-primary mb-3 text-center">📍 Logistique</h4>
+                    <ul class="text-sm space-y-2 text-gray-600">
+                        <li>• Programmation des sessions</li>
+                        <li>• Gestion fine des quotas</li>
+                        <li>• Mise à jour des lieux/dates</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h4 class="font-bold text-ieb-primary mb-3 text-center">📄 Documents</h4>
+                    <ul class="text-sm space-y-2 text-gray-600">
+                        <li>• Feuilles d'émargement</li>
+                        <li>• Courriers d'octroi</li>
+                        <li>• Fiches navettes & Emails</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: GAIN DE TEMPS (VISUEL) -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="bg-white p-8 rounded-2xl shadow-lg order-2 md:order-1">
+                <h3 class="text-center font-bold text-gray-700 mb-6">Impact sur la charge de travail</h3>
+                <div class="chart-container">
+                    <canvas id="barTimeSaved"></canvas>
+                </div>
+            </div>
+            <div class="order-1 md:order-2">
+                <h2 class="text-3xl font-bold text-ieb-dark mb-6">Libérer du Temps pour l'Essentiel</h2>
+                <p class="text-gray-600 text-lg mb-6">
+                    En automatisant les tâches à faible valeur ajoutée (recopie de noms, décompte manuel), le formateur se concentre sur l'accompagnement pédagogique.
+                </p>
+                <div class="flex items-center space-x-4 bg-ieb-success/10 p-4 rounded-lg border border-ieb-success/20">
+                    <span class="text-3xl">⏱️</span>
+                    <div>
+                        <span class="block font-bold text-ieb-success text-xl">70% de temps gagné</span>
+                        <span class="text-sm text-gray-500">sur la phase de secrétariat après formation.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: RGPD & SÉCURITÉ (INTÉGRALITÉ) -->
+        <section class="bg-ieb-dark text-white rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32"></div>
+            <div class="relative z-10">
+                <h2 class="text-3xl font-bold mb-8 flex items-center">
+                    <span class="mr-3">🛡️</span> Sécurité des données bénévoles
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="bg-ieb-accent p-2 rounded mr-4">❌</div>
+                            <div>
+                                <h4 class="font-bold">AUCUN STOCKAGE CLOUD</h4>
+                                <p class="text-sm opacity-80">Les noms, prénoms et emails ne sont JAMAIS stockés sur Internet. Ils restent dans votre fichier CSV local.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-ieb-primary p-2 rounded mr-4">💻</div>
+                            <div>
+                                <h4 class="font-bold">TRAITEMENT NAVIGATEUR</h4>
+                                <p class="text-sm opacity-80">La génération des documents Word se fait uniquement dans la mémoire vive de votre ordinateur.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-ieb-success p-2 rounded mr-4">⚖️</div>
+                            <div>
+                                <h4 class="font-bold">DONNÉES "FROIDES"</h4>
+                                <p class="text-sm opacity-80">Le service cloud ne contient que des données logistiques : lieux, dates, intitulés.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-xl border border-white/20">
+                        <h4 class="text-center font-bold mb-6">Distribution des Données</h4>
+                        <div class="chart-container" style="height: 200px;">
+                            <canvas id="donutRGPD"></canvas>
+                        </div>
+                        <p class="text-center text-xs mt-4 opacity-70">100% des données nominatives sont locales.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 7: CONTACT / CTA -->
+        <section class="text-center py-12">
+            <h2 class="text-2xl font-bold mb-6">Prêt pour le déploiement ?</h2>
+            <!-- MODIFIER ICI : Votre email institutionnel -->
+            <a href="mailto:niels.lheureux@ac-montpellier.fr?subject=Déploiement%20Système%20IEB&body=Bonjour,%20je%20souhaiterais%20planifier%20une%20démonstration..." 
+               class="inline-block bg-ieb-accent hover:bg-orange-600 text-white font-bold py-5 px-12 rounded-full shadow-2xl transition-transform hover:scale-105">
+                🚀 Lancer la phase de test
+            </a>
+            <p class="mt-8 text-gray-400 text-xs">
+                Développé pour la circonscription de Prades - IEB 2026.
+            </p>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-500 py-10 text-center text-sm">
+        <div class="max-w-4xl mx-auto px-4">
+            <p class="mb-2">Ce document est une infographie interactive générée pour la présentation du projet.</p>
+            <p>Conformité RGPD assurée par conception (Privacy by Design).</p>
+        </div>
+    </footer>
+
+    <script>
+        function wrap(labels) {
+            return labels.map(label => {
+                if (label.length <= 16) return label;
+                const words = label.split(' ');
+                const lines = [];
+                let current = words[0];
+                for(let i=1; i<words.length; i++) {
+                    if((current + ' ' + words[i]).length <= 16) current += ' ' + words[i];
+                    else { lines.push(current); current = words[i]; }
+                }
+                lines.push(current);
+                return lines;
+            });
+        }
+
+        const tooltipPlugin = {
+            callbacks: {
+                title: function(items) {
+                    const label = items[0].chart.data.labels[items[0].dataIndex];
+                    return Array.isArray(label) ? label.join(' ') : label;
+                }
+            }
+        };
+
+        new Chart(document.getElementById('radarPerformance'), {
+            type: 'radar',
+            data: {
+                labels: wrap(['Sécurité RGPD', 'Vitesse Inscription', 'Fiabilité Quotas', 'Image de Marque', 'Facilité Admin']),
+                datasets: [{
+                    label: 'Système IEB',
+                    data: [100, 95, 95, 90, 85],
+                    borderColor: '#2196F3',
+                    backgroundColor: 'rgba(33, 150, 243, 0.2)',
+                    pointBackgroundColor: '#2196F3'
+                }, {
+                    label: 'Gestion Actuelle',
+                    data: [40, 30, 50, 40, 30],
+                    borderColor: '#94a3b8',
+                    backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                    borderDash: [5, 5]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { tooltip: tooltipPlugin, legend: { position: 'bottom' } },
+                scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false } } }
+            }
+        });
+
+        new Chart(document.getElementById('barTimeSaved'), {
+            type: 'bar',
+            data: {
+                labels: wrap(['Mise à jour Calendrier', 'Saisie Inscrits', 'Édition Emargement', 'Envoi Convocation']),
+                datasets: [{
+                    label: 'Ancien (Minutes)',
+                    data: [45, 120, 60, 40],
+                    backgroundColor: '#cbd5e1'
+                }, {
+                    label: 'IEB (Minutes)',
+                    data: [2, 0, 1, 1],
+                    backgroundColor: '#FF9800'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { tooltip: tooltipPlugin, legend: { position: 'bottom' } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        new Chart(document.getElementById('donutRGPD'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Local (Sécurisé)', 'Cloud (Logistique)'],
+                datasets: [{
+                    data: [75, 25],
+                    backgroundColor: ['#4CAF50', 'rgba(255,255,255,0.2)'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                cutout: '80%'
+            }
+        });
+    </script>
+</body>
+</html>
 
